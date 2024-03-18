@@ -5,6 +5,7 @@ import MedicineLists from "./componens/MedicineLists";
 import Signin from "./componens/Signin";
 // import Signup from "./componens/Signup";
 import Registration from "./componens/Registration";
+import Medicineinput from "./componens/Medicineinput";
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/Registration" element={<Registration />} />
         {/* <Route path="/Signup" element={<Signup />} /> */}
         <Route path="/medicineLists" element={<MedicineLists />} />
+        {/* <Route path="/medicineinput" element={<Medicineinput />} /> */}
       </Routes>
       {/* <Registration/> */}
     </Router>
