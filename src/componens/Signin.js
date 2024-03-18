@@ -20,7 +20,7 @@ const Signin = () => {
   const paperStyle = {
     padding: 20,
     height: "90vh",
-    width: 280,
+    width: 410,
     margin: "0 auto",
   };
   const avatarStyle = { backgroundColor: "#6767d4" };
@@ -41,7 +41,8 @@ const Signin = () => {
     }, 2000);
   };
   const handleChange = (values, props) => {
-    navigate("/Signup");
+    navigate("/Registration");
+    // navigate("/Signup");
   };
 
   const validationSchema = Yup.object().shape({
@@ -119,7 +120,8 @@ const Signin = () => {
             Don't have an account ?
             <Link href="#" onClick={() => handleChange("event", 1)}>
               {" "}
-              Sign Up
+              Register
+              {/* Signup */}
             </Link>
           </Typography>
         </Box>

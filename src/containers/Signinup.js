@@ -4,8 +4,9 @@ import Tab from "@mui/material/Tab";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Signin from "../componens/Signin";
-import Signup from "../componens/Signup";
+// import Signup from "../componens/Signup";
 import { Paper } from "@mui/material";
+import Registration from "../componens/Registration"
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -32,7 +33,7 @@ const Signinup = () => {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-  const paperStyle={width:320, margin:"20px auto"}
+  const paperStyle={width:450, margin:"20px auto"}
   return (
     <Paper elevation={20} style={paperStyle}>
       <Box sx={{ width: "100%" }}>
@@ -43,14 +44,16 @@ const Signinup = () => {
             aria-label="basic tabs example"
           >
             <Tab label="Sign in" />
-            <Tab label="Sign up" />
+            <Tab label="Registration" />
+            {/* <Tab label="Signup" /> */}
           </Tabs>
         </Box>
         <CustomTabPanel value={value} index={0}>
           <Signin handleChange={handleChange} />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <Signup />
+          {/* <Signup /> */}
+          <Registration />
         </CustomTabPanel>
       </Box>
     </Paper>
