@@ -38,6 +38,7 @@ const Registration = () => {
   const [CountryValue, setCountryValue] = useState("");
   function handleCityChange(event) {
     setCityValue(event.target.value);
+    
   }
   function handleCountryChange(event) {
     setCountryValue(event.target.value);
@@ -54,21 +55,21 @@ const Registration = () => {
   //   const handleCityChange = (selectedOption) => {
   //     setCity(selectedOption);
   //   };
-  const validationSchema = Yup.object().shape({
-    organizationName: Yup.string().required("Required"),
-    branchName: Yup.string().required("Required"),
-    address: Yup.string().required("Required"),
-    area: Yup.string().required("Required"),
-    city: Yup.string().required("Required"),
-    country: Yup.string().required("Required"),
-    Username: Yup.string().required("Required"),
-    Password: Yup.string()
-      .min(8, "Password minimum length should be 8")
-      .required("Required"),
-    confirmpassword: Yup.string()
-      .oneOf([Yup.ref("password")], "Password not matched")
-      .required("Required"),
-  });
+  // const validationSchema = Yup.object().shape({
+  //   organizationName: Yup.string().required("Required"),
+  //   branchName: Yup.string().required("Required"),
+  //   address: Yup.string().required("Required"),
+  //   area: Yup.string().required("Required"),
+  //   city: Yup.string().required("Required"),
+  //   country: Yup.string().required("Required"),
+  //   Username: Yup.string().required("Required"),
+  //   Password: Yup.string()
+  //     .min(8, "Password minimum length should be 8")
+  //     .required("Required"),
+  //   confirmpassword: Yup.string()
+  //     .oneOf([Yup.ref("password")], "Password not matched")
+  //     .required("Required"),
+  // });
   const navigate = useNavigate();
   const HandleSubmit = (values, props) => {
     console.log(values);
@@ -93,7 +94,7 @@ const Registration = () => {
         </Grid>
         <Formik
           initialValues={initialValues}
-          validationSchema={validationSchema}
+          // validationSchema={validationSchema}
           onSubmit={HandleSubmit}
         >
           {(props) => (
@@ -107,6 +108,7 @@ const Registration = () => {
                     helperText={<ErrorMessage name="organizationName" />}
                     placeholder="Enter organization name"
                     fullWidth
+                    required
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -128,6 +130,7 @@ const Registration = () => {
                     placeholder="Enter address"
                     fullWidth
                     type="text"
+                    required
                   />
                 </Grid>
                 <Grid item xs={12}>
