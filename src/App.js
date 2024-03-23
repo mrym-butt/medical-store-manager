@@ -1,12 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
 import Signinup from "./containers/Signinup";
 import MedicineLists from "./componens/MedicineLists";
 import Signin from "./componens/Signin";
-// import Signup from "./componens/Signup";
 import Registration from "./componens/Registration";
-import Medicineinput from "./componens/Medicineinput";
-
+import UpdatedMedicineList from "./componens/UpdatedMedicineList";
 
 function App() {
   return (
@@ -15,14 +14,13 @@ function App() {
         <Route path="/" element={<Signinup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/Registration" element={<Registration />} />
-        {/* <Route path="/Signup" element={<Signup />} /> */}
         <Route path="/medicineLists" element={<MedicineLists />} />
-        {/* <Route path="/medicineinput" element={<Medicineinput />} /> */}
+        
+        <Route path="/updated-medicine-list" element={<UpdatedMedicineList />} />
+
       </Routes>
-      {/* <Registration/> */}
     </Router>
   );
 }
-
 
 export default App;

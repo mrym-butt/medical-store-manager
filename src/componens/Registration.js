@@ -6,82 +6,107 @@ import {
   Paper,
   TextField,
   Avatar,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import { Field, Form, Formik, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { FormHelperText } from "@mui/material";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import { useNavigate } from "react-router-dom";
+import { Slider } from "@mui/material";
+import { apiURL } from "./temp";
 
 const Registration = () => {
   const paperStyle = {
     padding: 20,
-    height: "140vh",
+    height: "120vh",
     width: 410,
     margin: "0 auto",
   };
   const avatarStyle = { backgroundColor: "#6767d4" };
   const initialValues = {
-    organizationName: "",
+    // organizationName: "",
     branchName: "",
     address: "",
-    area: "",
-    city: "",
-    country: "",
-    Username: "",
-    Password: "",
-    DaysOpen: "",
-    OpenTime: "",
-    CloseTime: "",
+    // area: "",
+    // city: "",
+    // country: "",
+    username: "",
+    password: "",
+    daysOpen: "",
+    openTime: "",
+    // CloseTime: "",
+    location: {
+      coordinates: [],
+    },
+    rating: "",
+    services: {
+      inStorePicking: false,
+      inStoreShopping: true,
+      inStoreDelivery: true,
+      paymentCash: false,
+    },
+    areaId: "",
+    mapUrl: "",
   };
-  const [cityValue, setCityValue] = useState("");
-  const [CountryValue, setCountryValue] = useState("");
-  function handleCityChange(event) {
-    setCityValue(event.target.value);
-    
-  }
-  function handleCountryChange(event) {
-    setCountryValue(event.target.value);
-  }
-  //   const options=[
-  //     {value: "KARACHI", label:"Karachi"},
-  //     {value: "Hyderabad", label:"Hyderabad"},
-  //     {value: "Islamabad", label:"Islamabad"},
-  //     {value: "Lahore", label:"Lahore"},
-  //     {value: "Faislabad", label:"Faislabad"}
-  //   ]
-  //   const [city, setCity] = useState("");
+  // const [cityValue, setCityValue] = useState("");
+  // const [CountryValue, setCountryValue] = useState("");
 
-  //   const handleCityChange = (selectedOption) => {
-  //     setCity(selectedOption);
-  //   };
-  // const validationSchema = Yup.object().shape({
-  //   organizationName: Yup.string().required("Required"),
-  //   branchName: Yup.string().required("Required"),
-  //   address: Yup.string().required("Required"),
-  //   area: Yup.string().required("Required"),
-  //   city: Yup.string().required("Required"),
-  //   country: Yup.string().required("Required"),
-  //   Username: Yup.string().required("Required"),
-  //   Password: Yup.string()
-  //     .min(8, "Password minimum length should be 8")
-  //     .required("Required"),
-  //   confirmpassword: Yup.string()
-  //     .oneOf([Yup.ref("password")], "Password not matched")
-  //     .required("Required"),
-  // });
+  // function handleCityChange(event) {
+  //   setCityValue(event.target.value);
+  // }
+
+  // function handleCountryChange(event) {
+  //   setCountryValue(event.target.value);
+  // }
+
   const navigate = useNavigate();
-  const HandleSubmit = (values, props) => {
-    console.log(values);
-    console.log(props);
-    navigate("/signin");
-    // history.push("/signin");
-    // <Redirect to='/signin'/>
+  const HandleSubmit = async (values, props) => {
+    try {
+      console.log("Form Values:", values);
+      const response = await fetch("https://nearest-pharma-be.vercel.app/pharmacy/new", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
 
-    setTimeout(() => {
-      props.resetForm();
-      props.setSubmitting(false);
-    }, 2000);
+        body: JSON.stringify({
+          username: "DVAGO_Pharmacy_2.0",
+          password: "dvago2.0@2024",
+          branchName: values.branchName,
+          location: {
+            type: "Point",
+            coordinates: [
+              values.location.coordinates[0],
+              values.location.coordinates[1],
+            ],
+          },
+          rating: values.rating,
+          daysOpen: values.daysOpen.split(",").map((day) => day.trim()),
+          openTime: values.openTime,
+          services: values.services,
+          areaId: values.areaId,
+          mapUrl: values.mapUrl,
+          address: values.address,
+        }),
+      });
+      console.log("Form Values:", values);
+      if (!response.ok) {
+        throw new Error("Registration failed");
+      }
+
+      const data = await response.json();
+      console.log(data);
+      navigate("/signin");
+
+      setTimeout(() => {
+        props.resetForm();
+        props.setSubmitting(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
   return (
     <Grid>
@@ -92,15 +117,11 @@ const Registration = () => {
           </Avatar>
           <h2 align="center">Vendor Registration Form</h2>
         </Grid>
-        <Formik
-          initialValues={initialValues}
-          // validationSchema={validationSchema}
-          onSubmit={HandleSubmit}
-        >
+        <Formik initialValues={initialValues} onSubmit={HandleSubmit}>
           {(props) => (
             <Form>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                   <Field
                     as={TextField}
                     label="Organization Name"
@@ -110,7 +131,7 @@ const Registration = () => {
                     fullWidth
                     required
                   />
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
@@ -119,6 +140,7 @@ const Registration = () => {
                     helperText={<ErrorMessage name="branchName" />}
                     placeholder="Enter branch name"
                     fullWidth
+                    required
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -136,14 +158,15 @@ const Registration = () => {
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
-                    label="Area"
-                    name="area"
-                    helperText={<ErrorMessage name="area" />}
-                    placeholder="Area"
+                    label="Area ID"
+                    name="areaId"
                     fullWidth
+                    type="text"
+                    // disabled
                   />
                 </Grid>
-                <Grid item xs={6}>
+
+                {/* <Grid item xs={6}>
                   <Field
                     as={TextField}
                     select
@@ -188,13 +211,13 @@ const Registration = () => {
                       Pakistan
                     </MenuItem>
                   </Field>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
-                    label="Username"
-                    name="Username"
-                    helperText={<ErrorMessage name="Username" />}
+                    label="username"
+                    name="username"
+                    helperText={<ErrorMessage name="username" />}
                     placeholder="Enter username"
                     fullWidth
                     required
@@ -203,48 +226,63 @@ const Registration = () => {
                 <Grid item xs={12}>
                   <Field
                     as={TextField}
-                    label="Password"
-                    name="Password"
-                    helperText={<ErrorMessage name="Password" />}
+                    label="password"
+                    name="password"
+                    helperText={<ErrorMessage name="password" />}
                     placeholder="Enter password"
                     fullWidth
                     type="password"
                     required
                   />
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                   <Field
                     as={TextField}
-                    label="Confirm Password"
-                    name="confirmPassword"
-                    helperText={<ErrorMessage name="confirmPassword" />}
+                    label="Confirm password"
+                    name="confirmpassword"
+                    helperText={<ErrorMessage name="confirmpassword" />}
                     placeholder="confirm password"
                     fullWidth
                     type="password"
                     required
                   />
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
+                  <InputLabel>Days Open</InputLabel>
                   <Field
                     as={TextField}
-                    label="DaysOpen"
-                    name="DaysOpen"
-                    placeholder="Open Days"
-                    type="number"
+                    select
+                    name="daysOpen"
                     fullWidth
-                  />
+                    multiple
+                    required
+                  >
+                    {[
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                    ].map((day) => (
+                      <MenuItem key={day} value={day}>
+                        {day}
+                      </MenuItem>
+                    ))}
+                  </Field>
                 </Grid>
                 <Grid item xs={6}>
                   <Field
                     as={TextField}
                     label="Open Time"
-                    name="OpenTime"
+                    name="openTime"
                     placeholder="open time"
                     type="time"
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={6}>
+                {/* <Grid item xs={6}>
                   <Field
                     as={TextField}
                     label="Close Time"
@@ -253,7 +291,106 @@ const Registration = () => {
                     type="time"
                     fullWidth
                   />
+                </Grid> */}
+                <Grid item xs={6}>
+                  <Field
+                    as={TextField}
+                    label="Latitude"
+                    name="location.coordinates.0"
+                    type="number"
+                    placeholder="Latitude"
+                    fullWidth
+                  />
                 </Grid>
+                <Grid item xs={6}>
+                  <Field
+                    as={TextField}
+                    label="Longitude"
+                    name="location.coordinates.1"
+                    type="number"
+                    placeholder="Longitude"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    label="Map URL"
+                    name="mapUrl"
+                    placeholder="Enter map URL"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    as={TextField}
+                    type="number"
+                    label="Rating"
+                    name="rating"
+                    helperText={<ErrorMessage name="rating" />}
+                    fullWidth
+                    required
+                    inputProps={{
+                      step: 0.1, // Allow decimal steps
+                      min: 1,
+                      max: 5,
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <InputLabel>services</InputLabel>
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            as={Checkbox}
+                            name="services.inStorePicking"
+                            color="primary"
+                          />
+                        }
+                        label="In-Store Picking"
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            as={Checkbox}
+                            name="services.inStoreShopping"
+                            color="primary"
+                          />
+                        }
+                        label="In-Store Shopping"
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            as={Checkbox}
+                            name="services.inStoreDelivery"
+                            color="primary"
+                          />
+                        }
+                        label="In-Store Delivery"
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            as={Checkbox}
+                            name="services.paymentCash"
+                            color="primary"
+                          />
+                        }
+                        label="Payment in Cash"
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+
                 <Grid item xs={12} style={{ textAlign: "center" }}>
                   <Button
                     type="submit"
@@ -261,8 +398,6 @@ const Registration = () => {
                     variant="contained"
                     disabled={props.isSubmitting}
                     fullWidth
-
-                    // onSubmit={props.HandleSubmit}
                   >
                     {props.isSubmitting ? "Loading" : "Register"}
                   </Button>

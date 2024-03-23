@@ -1,0 +1,47 @@
+.medicine-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .plus-sign {
+    color: green;
+    cursor: pointer;
+    margin-left: 60px;
+  }
+
+  .delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+
+.medicine-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  
+  .medicine-table th,
+  .medicine-table td {
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .medicine-table th {
+    background-color: green;
+    color: white;
+  }
+  
+  .medicine-table tr:nth-child(even) {
+    background-color: #f7f7f7; /* Alternate row color */
+  }
+  
+  .medicine-table tr:hover {
+    background-color: #e5e5e5; /* Hover color */
+  }
+  

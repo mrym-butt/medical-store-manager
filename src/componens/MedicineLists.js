@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
-import Medicineinput from "./Medicineinput";
-import "./app.css";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { Button } from "@mui/material";
-// import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import "./MedicineLists.css"; // Import CSS file for styling
 
 function MedicineLists() {
   const [medicines, setMedicines] = useState([]);
@@ -11,10 +9,9 @@ function MedicineLists() {
   const [medicineName, setMedicineName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
-  const [viewMedicineList, setViewMedicineList] = useState(false);
   const [updateMessage, setUpdateMessage] = useState("");
-  const [editIndex, setEditIndex] = useState(-1); // New state for tracking the index being edited
-
+  const [viewMedicineList, setViewMedicineList] = useState(false); // Define setViewMedicineList
+  const navigate = useNavigate();
 
   const addMedicine = () => {
     const newMedicine = {
@@ -30,32 +27,12 @@ function MedicineLists() {
     setQuantity("");
     setPrice("");
     setUpdateMessage("Successfully updated!");
+
+    setTimeout(() => {
+      setUpdateMessage("");
+    }, 2000);
   };
-  const editMedicine = (index, field, value) => {
-    const updatedMedicines = [...medicines];
-    updatedMedicines[index] = {
-      ...updatedMedicines[index],
-      [field]: value,
-    };
-    setMedicines(updatedMedicines);
-    setEditIndex(index);
-    setCompany(updatedMedicines[index].company);
-    setMedicineName(updatedMedicines[index].medicineName);
-    setQuantity(updatedMedicines[index].quantity);
-    setPrice(updatedMedicines[index].price);
-  };
-  const saveMedicine = (index) => {
-    const updatedMedicines = [...medicines];
-    updatedMedicines[index] = {
-      company,
-      medicineName,
-      quantity,
-      price,
-    };
-    setMedicines(updatedMedicines);
-    setEditIndex(-1);
-    setUpdateMessage("Changes saved!");
-  };
+
   const closeList = () => {
     setViewMedicineList(false);
     setUpdateMessage("List Closed");
@@ -65,55 +42,65 @@ function MedicineLists() {
     }, 2000);
   };
 
-  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Implement your logout logic here, such as clearing local storage or redirecting to a logout page
+    navigate("/signin"); // Redirect to the sign-in page
+  };
+
   const handleSubmit = () => {
-    navigate("/medicineinput");
+    navigate("/updated-medicine-list", { state: { medicines } });
   };
 
   return (
     <div className="app-container">
       <header className="header">MediStore Manager</header>
-      <div className="input-container">
-        <label>Company Name:</label>
-        <input
-          type="text"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-        />
-
-        <label>Medicine Name:</label>
-        <input
-          type="text"
-          value={medicineName}
-          onChange={(e) => setMedicineName(e.target.value)}
-        />
-
-        <label>Quantity:</label>
-        <input
-          type="text"
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.value)}
-        />
-
-        <label>Price:</label>
-        <input
-          type="text"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-        />
-
-        <button onClick={addMedicine}>Add Medicine</button>
+      <div className="logout-container">
+        <Button className="logout-button" onClick={handleLogout}>Logout</Button>
+      </div>
+      <div className="form-container">
+        <div className="form-group">
+          <label htmlFor="company">Company Name:</label>
+          <input
+            type="text"
+            id="company"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="medicineName">Medicine Name:</label>
+          <input
+            type="text"
+            id="medicineName"
+            value={medicineName}
+            onChange={(e) => setMedicineName(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="quantity">Quantity:</label>
+          <input
+            type="text"
+            id="quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="price">Price:</label>
+          <input
+            type="text"
+            id="price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
+        </div>
+        <button className="add-button" onClick={addMedicine}>Add Medicine</button>
       </div>
       {updateMessage && (
         <div className="update-message-box">
           <div className="update-message">{updateMessage}</div>
         </div>
       )}
-      {/* {medicines.length > 0 && !viewMedicineList && (
-        <div className="view-list-button-container">
-          <button onClick={() => setViewMedicineList(true)}>View Medicine List</button>
-        </div>
-      )} */}
       <Button
         type="button"
         color="primary"
@@ -125,12 +112,14 @@ function MedicineLists() {
       </Button>
       {viewMedicineList && (
         <div className="view-list-container">
-          <Medicineinput
-            medicines={medicines}
-            editMedicine={editMedicine}
-            saveMedicine={saveMedicine}
-            editIndex={editIndex}
-          />
+          <h2>Medicine List</h2>
+          <ul>
+            {medicines.map((medicine, index) => (
+              <li key={index}>
+                {medicine.company} - {medicine.medicineName} - Quantity: {medicine.quantity} - Price: {medicine.price}
+              </li>
+            ))}
+          </ul>
           <button className="close-list-button" onClick={closeList}>
             Close List
           </button>

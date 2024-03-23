@@ -9,14 +9,18 @@ import {
   Typography,
   Link,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import LockIcon from "@mui/icons-material/Lock";
 import Checkbox from "@mui/material/Checkbox";
 import { Form, Formik, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
+import { apiURL } from "./temp";
 
 const Signin = () => {
+  // const [Username,setUsername]= useState('')
+  // const [Password,setPassword]= useState('')
+
   const paperStyle = {
     padding: 20,
     height: "90vh",
@@ -31,15 +35,71 @@ const Signin = () => {
   };
 
   const navigate = useNavigate();
-  const HandleSubmit = (values, props) => {
-    console.log(values);
-    console.log(props);
-    navigate("/medicineLists");
-    setTimeout(() => {
-      props.resetForm();
-      props.setSubmitting(false);
-    }, 2000);
+  // const HandleSubmit = async (values, props) => {
+  //   // let item={username,password};
+  //   let result = await fetch(
+  //     "https://nearest-pharma-be.vercel.app/pharmacy/login",
+  //     {
+  //       method: "POST",
+  //       headers: [],
+  //       body: {
+  //         mode: "raw",
+  //         raw: '{\r\n    "username": "DVAGO_Pharmacy_2.0",\r\n    "password": "dvago2.0@2024"\r\n}',
+  //         options: {
+  //           raw: {
+  //             language: "json",
+  //           },
+  //         },
+  //       },
+  //     }
+  //   );
+  //   result= await result.json();
+  //   localStorage.setItem("user-info".JSON.stringify(result))
+
+  //   console.log(values);
+  //   console.log(props);
+  //   navigate("/medicineLists");
+  //   setTimeout(() => {
+  //     props.resetForm();
+  //     props.setSubmitting(false);
+  //   }, 2000);
+  // };
+
+  const HandleSubmit = async (values, props) => {
+    try {
+      const response = await fetch(`${apiURL}/pharmacy/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: values.Username,
+            password: values.password,
+          }),
+        }
+      );
+  
+      if (!response.ok) {
+        throw new Error("Login failed");
+      }
+  
+      const data = await response.json();
+      console.log(data); 
+      localStorage.setItem("user-info", JSON.stringify(data));
+  
+      navigate("/medicineLists");
+      setTimeout(() => {
+        props.resetForm();
+        props.setSubmitting(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
+  
+
+
   const handleChange = (values, props) => {
     navigate("/Registration");
     // navigate("/Signup");
@@ -47,10 +107,12 @@ const Signin = () => {
 
   const validationSchema = Yup.object().shape({
     Username: Yup.string()
-      .email("Please enter valid email")
       .required("Required"),
     password: Yup.string().required("Required"),
   });
+  // function login(){
+  //   console.warn(Username,Password)
+  // }
   return (
     <Grid>
       <Paper style={paperStyle}>
@@ -72,7 +134,10 @@ const Signin = () => {
                   as={TextField}
                   label="Username"
                   name="Username"
+                  values="Username"
+                  // type="email"
                   placeholder="Enter username"
+                  // onChange={(e) => setUsername(e.target.value)}
                   helperText={<ErrorMessage name="Username" />}
                   fullWidth
                   required
@@ -83,8 +148,10 @@ const Signin = () => {
                   as={TextField}
                   label="Password"
                   name="password"
+                  values="Password"
                   placeholder="Enter password"
                   type="password"
+                  // onChange={(e) => setPassword(e.target.value)}
                   helperText={<ErrorMessage name="password" />}
                   fullWidth
                   required
@@ -105,6 +172,7 @@ const Signin = () => {
                 disabled={props.isSubmitting}
                 fullWidth
                 onSubmit={props.HandleSubmit}
+                // onClick={login}
               >
                 {props.isSubmitting ? "Loading" : "Sign In"}
               </Button>
