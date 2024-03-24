@@ -18,9 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { apiURL } from "./temp";
 
 const Signin = () => {
-  // const [Username,setUsername]= useState('')
-  // const [Password,setPassword]= useState('')
-
+ 
   const paperStyle = {
     padding: 20,
     height: "90vh",
@@ -35,36 +33,6 @@ const Signin = () => {
   };
 
   const navigate = useNavigate();
-  // const HandleSubmit = async (values, props) => {
-  //   // let item={username,password};
-  //   let result = await fetch(
-  //     "https://nearest-pharma-be.vercel.app/pharmacy/login",
-  //     {
-  //       method: "POST",
-  //       headers: [],
-  //       body: {
-  //         mode: "raw",
-  //         raw: '{\r\n    "username": "DVAGO_Pharmacy_2.0",\r\n    "password": "dvago2.0@2024"\r\n}',
-  //         options: {
-  //           raw: {
-  //             language: "json",
-  //           },
-  //         },
-  //       },
-  //     }
-  //   );
-  //   result= await result.json();
-  //   localStorage.setItem("user-info".JSON.stringify(result))
-
-  //   console.log(values);
-  //   console.log(props);
-  //   navigate("/medicineLists");
-  //   setTimeout(() => {
-  //     props.resetForm();
-  //     props.setSubmitting(false);
-  //   }, 2000);
-  // };
-
   const HandleSubmit = async (values, props) => {
     try {
       const response = await fetch(`${apiURL}/pharmacy/login`,
@@ -88,7 +56,7 @@ const Signin = () => {
       console.log(data); 
       localStorage.setItem("user-info", JSON.stringify(data));
   
-      navigate("/medicineLists");
+      navigate("/updatedmedicinelist");
       setTimeout(() => {
         props.resetForm();
         props.setSubmitting(false);
@@ -102,7 +70,6 @@ const Signin = () => {
 
   const handleChange = (values, props) => {
     navigate("/Registration");
-    // navigate("/Signup");
   };
 
   const validationSchema = Yup.object().shape({

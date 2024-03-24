@@ -72,8 +72,8 @@ const Registration = () => {
         },
 
         body: JSON.stringify({
-          username: "DVAGO_Pharmacy_2.0",
-          password: "dvago2.0@2024",
+          username: values.username,
+          password: values.password,
           branchName: values.branchName,
           location: {
             type: "Point",

@@ -28,7 +28,7 @@ function UpdatedMedicineList() {
       <table className="medicine-table">
         <thead>
           <tr>
-            <th>Company</th>
+            {/* <th>Company</th> */}
             <th>Name</th>
             <th>Quantity</th>
             <th>Price</th>
@@ -38,7 +38,7 @@ function UpdatedMedicineList() {
         <tbody>
           {medicines.map((medicine, index) => (
             <tr key={index}>
-              <td>{medicine.company}</td>
+              {/* <td>{medicine.company}</td> */}
               <td>{medicine.medicineName}</td>
               <td>{medicine.quantity}</td>
               <td>{medicine.price}</td>
@@ -56,3 +56,4 @@ function UpdatedMedicineList() {
 }
 
 export default UpdatedMedicineList;
+

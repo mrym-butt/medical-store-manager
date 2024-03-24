@@ -1,88 +1,146 @@
-import React, { useState } from "react";
-import { Button } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Button, MenuItem, TextField } from "@mui/material";
+import "./MedicineLists.css";
 import { useNavigate } from "react-router-dom";
-import "./MedicineLists.css"; // Import CSS file for styling
 
 function MedicineLists() {
-  const [medicines, setMedicines] = useState([]);
-  const [company, setCompany] = useState("");
   const [medicineName, setMedicineName] = useState("");
-  const [quantity, setQuantity] = useState("");
+  const [medicineQuantity, setMedicineQuantity] = useState("");
   const [price, setPrice] = useState("");
+  const [newmedicineQuantity, setNewMedicineQuantity] = useState("");
+  const [newprice, setNewPrice] = useState("");
   const [updateMessage, setUpdateMessage] = useState("");
-  const [viewMedicineList, setViewMedicineList] = useState(false); // Define setViewMedicineList
+  const [existingMedicines, setExistingMedicines] = useState([]);
+  const [selectedMedicine, setSelectedMedicine] = useState("");
+  const [showNewMedicineForm, setShowNewMedicineForm] = useState(false);
   const navigate = useNavigate();
 
-  const addMedicine = () => {
-    const newMedicine = {
-      company,
-      medicineName,
-      quantity,
-      price,
+  useEffect(() => {
+    const fetchExistingMedicines = async () => {
+      try {
+        const response = await fetch(
+          "https://nearest-pharma-be.vercel.app/medicine/"
+        );
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Medicines retrieved successfully:", data.data);
+          setExistingMedicines(data.data);
+        } else {
+          throw new Error("Failed to fetch existing medicines");
+        }
+      } catch (error) {
+        console.error("Error fetching medicines:", error);
+      }
     };
 
-    setMedicines([...medicines, newMedicine]);
-    setCompany("");
-    setMedicineName("");
-    setQuantity("");
-    setPrice("");
-    setUpdateMessage("Successfully updated!");
+    fetchExistingMedicines();
+  }, []);
 
-    setTimeout(() => {
-      setUpdateMessage("");
-    }, 2000);
+  const handleAddMedicine = async () => {
+    try {
+      const response = await fetch(
+        "https://nearest-pharma-be.vercel.app/medicine/new",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            medicineName,
+            quantity: medicineQuantity,
+            price,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Medicine added successfully:", data);
+        // setExistingMedicines([...existingMedicines, medicineName]);
+        setExistingMedicines([
+          ...existingMedicines,
+          { medicineName, quantity: medicineQuantity, price },
+        ]);
+        setUpdateMessage("Medicine added successfully!");
+        setMedicineName("");
+        setMedicineQuantity("");
+        setPrice("");
+        setNewMedicineQuantity("");
+        setNewPrice("");
+      } else {
+        console.error("Failed to add medicine:", response.statusText);
+        setUpdateMessage("Failed to add medicine");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setUpdateMessage("Failed to add medicine");
+    }
   };
 
-  const closeList = () => {
-    setViewMedicineList(false);
-    setUpdateMessage("List Closed");
+  const handleSelectMedicine = (event) => {
+    setSelectedMedicine(event.target.value);
+  };
 
-    setTimeout(() => {
-      setUpdateMessage("");
-    }, 2000);
+  const handleCreateNewMedicine = () => {
+    setShowNewMedicineForm(true);
   };
 
   const handleLogout = () => {
-    // Implement your logout logic here, such as clearing local storage or redirecting to a logout page
-    navigate("/signin"); // Redirect to the sign-in page
+    navigate("/signin");
   };
 
+  // const handleSubmit = () => {
+  //   console.log("Selected Medicine:", selectedMedicine);
+  //   // Logic to handle submission, including selected medicine
+  // };
+
   const handleSubmit = () => {
-    navigate("/updated-medicine-list", { state: { medicines } });
+    navigate("/updatedmedicinelist");
   };
 
   return (
     <div className="app-container">
       <header className="header">MediStore Manager</header>
+      <div className="view-medicine-container">
+        <Button className="view-medicine-button" onClick={handleSubmit}>
+          View List
+        </Button>
+      </div>
       <div className="logout-container">
-        <Button className="logout-button" onClick={handleLogout}>Logout</Button>
+        <Button className="logout-button" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
       <div className="form-container">
-        <div className="form-group">
-          <label htmlFor="company">Company Name:</label>
-          <input
-            type="text"
-            id="company"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-          />
-        </div>
-        <div className="form-group">
+        <div className="input-field">
           <label htmlFor="medicineName">Medicine Name:</label>
-          <input
-            type="text"
+          <TextField
+            select
             id="medicineName"
-            value={medicineName}
-            onChange={(e) => setMedicineName(e.target.value)}
-          />
+            value={selectedMedicine}
+            onChange={(event) => {
+              handleSelectMedicine(event);
+              setMedicineName(event.target.value);
+            }}
+            variant="outlined"
+            fullWidth
+          >
+            {Array.isArray(existingMedicines) &&
+              existingMedicines.map((medicine, index) => (
+                <MenuItem key={index} value={medicine.medicineName}>
+                  {medicine.medicineName}
+                </MenuItem>
+              ))}
+          </TextField>
         </div>
         <div className="form-group">
-          <label htmlFor="quantity">Quantity:</label>
+          <label htmlFor="medicineQuantity">Quantity:</label>
           <input
-            type="text"
-            id="quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
+            type="number"
+            id="medicineQuantity"
+            value={medicineQuantity}
+            onChange={(e) => setMedicineQuantity(e.target.value)}
+            className="input-field"
           />
         </div>
         <div className="form-group">
@@ -92,37 +150,99 @@ function MedicineLists() {
             id="price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            className="input-field"
           />
         </div>
-        <button className="add-button" onClick={addMedicine}>Add Medicine</button>
+        <div className="button-container">
+          <Button
+            className="add-button"
+            style={{
+              backgroundColor: "#4caf50",
+              color: "white",
+              marginBottom: "10px",
+              // marginBottom: "10px",
+              width: "200px", // Set width to 50%
+            }}
+            onClick={handleAddMedicine}
+          >
+            Add Medicine
+          </Button>
+          <Button
+            className="add-button"
+            style={{
+              backgroundColor: "#4caf50",
+              color: "white",
+              marginBottom: "10px",
+              width: "200px",
+            }}
+            onClick={handleCreateNewMedicine}
+          >
+            Create New Medicine
+          </Button>
+        </div>
       </div>
+      {showNewMedicineForm && (
+        <div className="form-container">
+          <h3>Create New Medicine</h3>
+          <div className="form-group">
+            <label htmlFor="newMedicineName">Medicine Name:</label>
+            <input
+              type="text"
+              id="newMedicineName"
+              value={medicineName}
+              onChange={(e) => setMedicineName(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="newMedicineQuantity">Quantity:</label>
+            <input
+              type="number"
+              id="newMedicineQuantity"
+              value={newmedicineQuantity}
+              onChange={(e) => setNewMedicineQuantity(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="newMedicinePrice">Price:</label>
+            <input
+              type="text"
+              id="newMedicinePrice"
+              value={newprice}
+              onChange={(e) => setNewPrice(e.target.value)}
+            />
+          </div>
+          <div className="form-buttons">
+            <Button
+              className="add-button"
+              onClick={handleAddMedicine}
+              style={{
+                backgroundColor: "#4caf50",
+                color: "white",
+                marginBottom: "10px",
+                marginRight: "10px",
+              }}
+            >
+              Save
+            </Button>
+            <Button
+              className="add-button"
+              onClick={() => setShowNewMedicineForm(false)}
+              style={{
+                backgroundColor: "#4caf50",
+                color: "white",
+                marginBottom: "10px",
+                left: "12px",
+              }}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       {updateMessage && (
         <div className="update-message-box">
           <div className="update-message">{updateMessage}</div>
-        </div>
-      )}
-      <Button
-        type="button"
-        color="primary"
-        variant="contained"
-        fullWidth
-        onClick={handleSubmit}
-      >
-        View Medicine List
-      </Button>
-      {viewMedicineList && (
-        <div className="view-list-container">
-          <h2>Medicine List</h2>
-          <ul>
-            {medicines.map((medicine, index) => (
-              <li key={index}>
-                {medicine.company} - {medicine.medicineName} - Quantity: {medicine.quantity} - Price: {medicine.price}
-              </li>
-            ))}
-          </ul>
-          <button className="close-list-button" onClick={closeList}>
-            Close List
-          </button>
         </div>
       )}
     </div>
