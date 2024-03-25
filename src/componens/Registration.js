@@ -9,6 +9,7 @@ import {
   InputLabel,
   Checkbox,
   FormControlLabel,
+  Typography,
 } from "@mui/material";
 import { Field, Form, Formik, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -20,7 +21,7 @@ import { apiURL } from "./temp";
 const Registration = () => {
   const paperStyle = {
     padding: 20,
-    height: "120vh",
+    height: "140vh",
     width: 410,
     margin: "0 auto",
   };
@@ -50,47 +51,40 @@ const Registration = () => {
     areaId: "",
     mapUrl: "",
   };
-  // const [cityValue, setCityValue] = useState("");
-  // const [CountryValue, setCountryValue] = useState("");
-
-  // function handleCityChange(event) {
-  //   setCityValue(event.target.value);
-  // }
-
-  // function handleCountryChange(event) {
-  //   setCountryValue(event.target.value);
-  // }
-
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
   const HandleSubmit = async (values, props) => {
     try {
       console.log("Form Values:", values);
-      const response = await fetch("https://nearest-pharma-be.vercel.app/pharmacy/new", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          username: values.username,
-          password: values.password,
-          branchName: values.branchName,
-          location: {
-            type: "Point",
-            coordinates: [
-              values.location.coordinates[0],
-              values.location.coordinates[1],
-            ],
+      const response = await fetch(
+        "https://nearest-pharma-be.vercel.app/pharmacy/new",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-          rating: values.rating,
-          daysOpen: values.daysOpen.split(",").map((day) => day.trim()),
-          openTime: values.openTime,
-          services: values.services,
-          areaId: values.areaId,
-          mapUrl: values.mapUrl,
-          address: values.address,
-        }),
-      });
+
+          body: JSON.stringify({
+            username: values.username,
+            password: values.password,
+            branchName: values.branchName,
+            location: {
+              type: "Point",
+              coordinates: [
+                values.location.coordinates[0],
+                values.location.coordinates[1],
+              ],
+            },
+            rating: values.rating,
+            daysOpen: values.daysOpen.split(",").map((day) => day.trim()),
+            openTime: values.openTime,
+            services: values.services,
+            areaId: values.areaId,
+            mapUrl: values.mapUrl,
+            address: values.address,
+          }),
+        }
+      );
       console.log("Form Values:", values);
       if (!response.ok) {
         throw new Error("Registration failed");
@@ -106,6 +100,7 @@ const Registration = () => {
       }, 2000);
     } catch (error) {
       console.error("Error:", error);
+      setErrorMessage("Username Alreadys Exists");
     }
   };
   return (
@@ -117,6 +112,11 @@ const Registration = () => {
           </Avatar>
           <h2 align="center">Vendor Registration Form</h2>
         </Grid>
+        {errorMessage && (
+          <Typography color="error" align="center" gutterBottom>
+            {errorMessage}
+          </Typography>
+        )}
         <Formik initialValues={initialValues} onSubmit={HandleSubmit}>
           {(props) => (
             <Form>
