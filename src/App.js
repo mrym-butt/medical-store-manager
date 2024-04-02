@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Signin from "./componens/Signin";
 import Registration from "./componens/Registration";
 import UpdatedMedicineList from "./componens/UpdatedMedicineList/UpdatedMedicineList";
-// import MedicineLists from "./componens/MedicineLists/MedicineLists";
 import UpdatedMedicineForm from "./componens/UpdatedMedicineForm";
 import MedicineLists from "./componens/MedicineLists";
 function App() {
@@ -12,7 +11,7 @@ function App() {
       <Routes path="/">
         <Route index element={<Signin />} />
         <Route path="Registration" element={<Registration />} />
-        
+        <Route path="signin" element={<Signin />} />
         <Route path="updatedmedicineform" element={<UpdatedMedicineForm />} />
         <Route path="medicinelists" element={<MedicineLists />} />
         <Route path="updatedmedicinelist" element={<UpdatedMedicineList />} />

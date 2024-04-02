@@ -12,91 +12,141 @@ const Registration = () => {
     margin: "50px auto",
   };
   const avatarStyle = { backgroundColor: "#4CAF50" };
-  const initialValues = {
+  const data = {
     branchName: "",
     address: "",
     username: "",
     password: "",
     daysOpen: [],
     openTime: "",
+    rating: "",
     location: {
       coordinates: ["", ""],
     },
-    rating: "",
+    mapUrl: "",
     services: {
       inStorePicking: false,
       inStoreShopping: true,
       inStoreDelivery: true,
       paymentCash: false,
     },
-    areaId: "",
-    mapUrl: "",
   };
+  const [inputData, setInputData] = useState(data);
+  const handleData = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      if (name.startsWith("services.")) {
+        setInputData({
+          ...inputData,
+          services: { ...inputData.services, [name.split(".")[1]]: checked },
+        });
+      } else if (name.startsWith("daysOpen")) {
+        setInputData({
+          ...inputData,
+          daysOpen: checked
+            ? [...inputData.daysOpen, name.split(".")[1]]
+            : inputData.daysOpen.filter((day) => day !== name.split(".")[1]),
+        });
+      } else {
+        setInputData({ ...inputData, [name]: value });
+      }
+    } else {
+      setInputData({ ...inputData, [name]: value });
+      if (name === "mapUrl") {
+        setInputData({ ...inputData, mapUrl: value });
+      }
+    }
+    console.log("Input Data:", inputData);
+  };
+
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
   const [center, setCenter] = useState({ lat: 0, lng: 0 });
-  const [mapUrl, setMapUrl] = useState("");
 
-  const HandleSubmit = async (values,props) => {
+  const HandleSubmit = async (e) => {
+    e.preventDefault();
+    console.log("Input Data:", inputData);
+  
+    if (
+      !inputData.branchName ||
+      !inputData.address ||
+      !inputData.username ||
+      !inputData.password ||
+      !inputData.daysOpen ||
+      !inputData.openTime ||
+      !inputData.rating ||
+      !inputData.location ||
+      !inputData.mapUrl ||
+      !inputData.services
+    ) {
+      console.log("Form Data:", inputData);
+      alert("All fields are Mandatory");
+      return;
+    }
+  
     try {
-        console.log("Form Values:", values);
-        const response = await fetch(
-          "https://nearest-pharma-be.vercel.app/pharmacy/new",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+      console.log("Form Values:", inputData);
+      const response = await fetch(
+        "https://nearest-pharma-be.vercel.app/pharmacy/new",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: inputData.username,
+            password: inputData.password,
+            branchName: inputData.branchName,
+            location: {
+              type: "Point",
+              coordinates: [
+                inputData.location.coordinates[0],
+                inputData.location.coordinates[1],
+              ],
             },
-
-            body: JSON.stringify({
-              username: values.username,
-              password: values.password,
-              branchName: values.branchName,
-              location: {
-                type: "Point",
-                coordinates: [
-                  values.location.coordinates[0],
-                  values.location.coordinates[1],
-                ],
-              },
-              rating: values.rating,
-              daysOpen: values.daysOpen.split(",").map((day) => day.trim()),
-              openTime: values.openTime,
-              services: values.services,
-              areaId: "65f8c337701d44c75ec1c9d7",
-              mapUrl: values.mapUrl,
-              address: values.address,
-            }),
-          }
-        );
-        console.log("Form Values:", values);
-
-        if (!response.ok) {
+            rating: inputData.rating,
+            daysOpen: inputData.daysOpen,
+            openTime: inputData.openTime,
+            services: inputData.services,
+            areaId: "65f8c337701d44c75ec1c9d7",
+            mapUrl: inputData.mapUrl,
+            address: inputData.address,
+          }),
+        }
+      );
+  
+      if (!response.ok) {
+        const data = await response.json();
+        if (data.error === "Username already exists") {
+          setErrorMessage("Username Already Exists");
+        } else {
           throw new Error("Registration failed");
         }
-
+      } else {
         const data = await response.json();
         console.log(data);
         navigate("/signin");
         localStorage.setItem("areaId", "65f8c337701d44c75ec1c9d7");
-      
-
-      setTimeout(() => {
-        props.resetForm();
-        props.setSubmitting(false);
-      }, 2000);
+      }
     } catch (error) {
       console.error("Error:", error);
-      setErrorMessage("Username Alreadys Exists");
     }
   };
+  
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
         setCenter({ lat: latitude, lng: longitude });
-        setMapUrl(`https://www.google.com/maps?q=${latitude},${longitude}`);
+        setInputData({
+          ...inputData,
+          location: {
+            ...inputData.location,
+            coordinates: [longitude, latitude],
+          },
+          mapUrl: `https://www.google.com/maps?q=${latitude},${longitude}`,
+        });
       });
     } else {
       alert("Geolocation is not supported by your browser.");
@@ -132,6 +182,15 @@ const Registration = () => {
                   name="branchName"
                   placeholder="Enter branch name"
                   required
+                  value={inputData.branchName}
+                  onChange={handleData}
+                  style={{
+                    width: "93%",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                  }}
                 />
               </div>
               <div style={{ marginBottom: "20px" }}>
@@ -140,6 +199,15 @@ const Registration = () => {
                   name="address"
                   placeholder="Enter address"
                   required
+                  value={inputData.address}
+                  onChange={handleData}
+                  style={{
+                    width: "93%",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                  }}
                 />
               </div>
               <div style={{ marginBottom: "20px" }}>
@@ -147,8 +215,16 @@ const Registration = () => {
                   type="text"
                   name="username"
                   placeholder="Enter username"
-                  style={{ width: "100%" }}
                   required
+                  value={inputData.username}
+                  onChange={handleData}
+                  style={{
+                    width: "93%",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                  }}
                 />
               </div>
               <div style={{ marginBottom: "20px" }}>
@@ -157,6 +233,8 @@ const Registration = () => {
                   name="password"
                   placeholder="Enter password"
                   required
+                  value={inputData.password}
+                  onChange={handleData}
                   style={{
                     width: "93%",
                     padding: "10px",
@@ -168,44 +246,75 @@ const Registration = () => {
               </div>
               <label>Days Open</label>
               <div
+                value={inputData.daysOpen}
+                onChange={handleData}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
+                  marginBottom: "20px",
                 }}
               >
                 <div>
-                  <label>
-                    <input type="checkbox" name="Monday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Monday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Monday
                   </label>
-                  <label>
-                    <input type="checkbox" name="Tuesday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Tuesday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Tuesday
                   </label>
                 </div>
                 <div>
-                  <label>
-                    <input type="checkbox" name="Wednesday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Wednesday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Wednesday
                   </label>
-                  <label>
-                    <input type="checkbox" name="Thursday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Thursday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Thursday
                   </label>
                 </div>
                 <div>
-                  <label>
-                    <input type="checkbox" name="Friday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Friday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Friday
                   </label>
-                  <label>
-                    <input type="checkbox" name="Saturday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Saturday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Saturday
                   </label>
                 </div>
                 <div>
-                  <label>
-                    <input type="checkbox" name="Sunday" />
+                  <label style={{ display: "flex", alignItems: "center" }}>
+                    <input
+                      type="checkbox"
+                      name="Sunday"
+                      style={{ marginRight: "5px" }}
+                    />
                     Sunday
                   </label>
                 </div>
@@ -216,15 +325,17 @@ const Registration = () => {
                   type="time"
                   name="openTime"
                   placeholder="Open time"
+                  value={inputData.openTime}
+                  onChange={handleData}
                   style={{
                     width: "94%",
                     padding: "10px",
-                    marginBottom: "10px",
                     borderRadius: "4px",
                     border: "1px solid #ccc",
                   }}
                 />
               </div>
+              <label>Rating</label>
               <div style={{ marginBottom: "20px" }}>
                 <input
                   type="number"
@@ -234,10 +345,19 @@ const Registration = () => {
                   min="1"
                   max="5"
                   required
+                  style={{
+                    width: "93%",
+                    padding: "10px",
+                    marginBottom: "10px",
+                    borderRadius: "4px",
+                    border: "1px solid #ccc",
+                  }}
+                  value={inputData.rating}
+                  onChange={handleData}
                 />
               </div>
               <div style={{ marginBottom: "20px" }}>
-                <div style={{ display: "flex" }}>
+                <div style={{ display: "flex", marginBottom: "10px" }}>
                   <div style={{ marginRight: "10px" }}>
                     <label>Latitude</label>
                     <input
@@ -246,7 +366,7 @@ const Registration = () => {
                       required
                       readOnly
                       style={{
-                        width: "94%",
+                        width: "88%", 
                         padding: "10px",
                         borderRadius: "4px",
                         border: "1px solid #ccc",
@@ -261,7 +381,7 @@ const Registration = () => {
                       required
                       readOnly
                       style={{
-                        width: "96%",
+                        width: "88%", 
                         padding: "10px",
                         borderRadius: "4px",
                         border: "1px solid #ccc",
@@ -272,12 +392,11 @@ const Registration = () => {
                 <label>Map URL</label>
                 <div>
                   <input
-                    label="Map URL"
-                    variant="outlined"
-                    fullWidth
-                    required
+                    type="text"
+                    name="mapUrl"
+                    value={inputData.mapUrl}
+                    onChange={handleData}
                     placeholder="Enter map url"
-                    value={mapUrl}
                     style={{
                       width: "94%",
                       padding: "10px",
@@ -293,7 +412,7 @@ const Registration = () => {
                   onClick={handleGetLocation}
                   style={{
                     marginBottom: "10px",
-                    width:"50%",
+                    width: "50%",
                     padding: "10px",
                     borderRadius: "4px",
                     border: "1px solid #ccc",
@@ -303,7 +422,7 @@ const Registration = () => {
                 >
                   Get Location
                 </button>
-                <LoadScript googleMapsApiKey="AIzaSyDtTeKzLdvEensF5z-LUodFfRDTv-WMnkA">
+                <LoadScript googleMapsApiKey="YOUR_API_KEY">
                   <GoogleMap
                     mapContainerStyle={{ width: "100%", height: "150px" }}
                     center={center}
@@ -315,27 +434,29 @@ const Registration = () => {
               </div>
               <label>Services</label>
               <div
+                value={inputData.services}
+                onChange={handleData}
                 style={{
                   display: "flex",
                   justifyContent: "space-between",
                 }}
               >
                 <div>
-                  <label>
+                  <label style={{ display: "flex", alignItems: "center" }}>
                     <input type="checkbox" name="services.inStorePicking" />
                     In-Store Picking
                   </label>
-                  <label>
+                  <label style={{ display: "flex", alignItems: "center" }}>
                     <input type="checkbox" name="services.inStoreDelivery" />
                     In-Store Delivery
                   </label>
                 </div>
                 <div>
-                  <label>
+                  <label style={{ display: "flex", alignItems: "center" }}>
                     <input type="checkbox" name="services.inStoreShopping" />
                     In-Store Shopping
                   </label>
-                  <label>
+                  <label style={{ display: "flex", alignItems: "center" }}>
                     <input type="checkbox" name="services.paymentCash" />
                     Payment in Cash
                   </label>

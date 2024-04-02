@@ -120,13 +120,6 @@ const Signin = () => {
                     />
                     <ErrorMessage name="password" render={(msg) => <Typography color="error">{msg}</Typography>} />
                   </Grid>
-                  {/* <Grid item>
-                    <FormControlLabel
-                      control={<Checkbox color="primary" />}
-                      label="Remember me"
-                      name="remember"
-                    />
-                  </Grid> */}
                   <Grid item>
                     <Button
                       type="submit"
